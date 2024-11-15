@@ -1,117 +1,121 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import {View, Text, StyleSheet, Button} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import Tts from 'react-native-tts';
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+const App = () => {
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [highlightedIndex, setHighlightedIndex] = useState(0);
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+  const textEnglish = 'Hello, welcome to our app!';
+  const textSpanish = 'Hola perrito, ¡bienvenido a nuestra aplicación!';
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+  // Dividir el texto en palabras para resaltar cada palabra
+  const spanishWords = textSpanish.split(' ');
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+  const speakSpanish = () => {
+    setIsSpeaking(true);
+    setHighlightedIndex(0); // Resaltar desde la primera palabra
+    Tts.setDefaultLanguage('es-ES'); // Establecer idioma español
+    Tts.setDefaultRate(0.5); // Velocidad del audio
+    Tts.speak(textSpanish);
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+    // Resaltar las palabras mientras se lee
+    const interval = setInterval(() => {
+      setHighlightedIndex(prevIndex => {
+        const newIndex = prevIndex + 1;
+        if (newIndex >= spanishWords.length) {
+          clearInterval(interval); // Detener el intervalo cuando termine de leer
+        }
+        return newIndex;
+      });
+    }, 1000); // Ajusta el tiempo según el ritmo de lectura
   };
 
+  const stopSpeaking = () => {
+    Tts.stop();
+    setIsSpeaking(false);
+    setHighlightedIndex(0); // Resetear el índice de resaltado
+  };
+
+  useEffect(() => {
+    Tts.addEventListener('tts-finish', () => setIsSpeaking(false));
+    Tts.addEventListener('tts-cancel', () => setIsSpeaking(false));
+
+    return () => {
+      setIsSpeaking(false);
+      setHighlightedIndex(0); // Limpiar estado al desmontar
+    };
+  }, []);
+
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <View style={styles.container}>
+      <Text style={styles.textTitle}>Practice Languages</Text>
+      <View style={styles.textContainer}>
+        <Text style={styles.textLabel}>English:</Text>
+        <Text style={styles.text}>{textEnglish}</Text>
+      </View>
+      <View style={styles.textContainer}>
+        <Text style={styles.textLabel}>Español:</Text>
+        <Text style={styles.text}>
+          {spanishWords.map((word, index) => (
+            <Text
+              key={index}
+              style={[
+                styles.textWord,
+                highlightedIndex === index && styles.highlightedWord, // Resaltar la palabra actual
+              ]}>
+              {word}{' '}
+            </Text>
+          ))}
+        </Text>
+      </View>
+      <View style={styles.buttonContainer}>
+        <Button
+          title={isSpeaking ? 'Stop' : 'Play Spanish Audio'}
+          onPress={isSpeaking ? stopSpeaking : speakSpanish}
+        />
+      </View>
+    </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    flex: 1,
+    padding: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f7f7f7',
   },
-  sectionTitle: {
+  textTitle: {
     fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  textContainer: {
+    marginBottom: 16,
+    alignItems: 'center',
+  },
+  textLabel: {
+    fontSize: 16,
     fontWeight: '600',
+    marginBottom: 4,
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
+  text: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: '#333',
   },
-  highlight: {
-    fontWeight: '700',
+  textWord: {
+    fontSize: 16,
+    color: '#333',
+  },
+  highlightedWord: {
+    backgroundColor: '#ffff00', // Resaltado en amarillo
+  },
+  buttonContainer: {
+    marginTop: 20,
+    width: '80%',
   },
 });
 
