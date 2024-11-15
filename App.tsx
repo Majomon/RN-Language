@@ -7,7 +7,7 @@ const App = () => {
   const [highlightedIndex, setHighlightedIndex] = useState(0);
 
   const textEnglish = 'Hello, welcome to our app!';
-  const textSpanish = 'Hola perrito, ¡bienvenido a nuestra aplicación!';
+  const textSpanish = 'Holis, ¡bienvenido a nuestra aplicación!';
 
   // Dividir el texto en palabras para resaltar cada palabra
   const spanishWords = textSpanish.split(' ');
@@ -16,7 +16,7 @@ const App = () => {
     setIsSpeaking(true);
     setHighlightedIndex(0); // Resaltar desde la primera palabra
     Tts.setDefaultLanguage('es-ES'); // Establecer idioma español
-    Tts.setDefaultRate(0.5); // Velocidad del audio
+    Tts.setDefaultRate(0.4); // Velocidad del audio
     Tts.speak(textSpanish);
 
     // Resaltar las palabras mientras se lee
