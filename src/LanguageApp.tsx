@@ -2,7 +2,7 @@ import {View, Text, StyleSheet, Button} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import Tts from 'react-native-tts';
 
-const App = () => {
+const LanguageApp = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
 
@@ -119,4 +119,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default App;
+export default LanguageApp;
